@@ -34,23 +34,24 @@ const Table = styled.table`
   }
 `;
 
-const Button = styled.button`
-  background-color: #ddd;
-  color: #333;
-  border: none;
+export const Button = styled.button`
+  padding: 10px;
   border-radius: 5px;
-  padding: 10px 20px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 4px 2px;
+  border: none;
+  background-color: #008CBA;
+  color: white;
   cursor: pointer;
-  transition: 0.3s;
+  margin: 10px; // This adds margin around the button
 
   &:hover {
-    background-color: #bbb;
+    background-color: #007B9A;
   }
+`;
+
+const Title = styled.h2`
+text-align: center;
+margin-bottom: 30px;
+color:white;
 `;
 
 const Scoreboard: React.FC<ScoreboardProps> = ({ scores }) => {
@@ -58,10 +59,7 @@ const Scoreboard: React.FC<ScoreboardProps> = ({ scores }) => {
   
   const paginatedScores = scores.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
-  const Title = styled.h2`
-    text-align: center;
-    margin-bottom: 30px;
-  `;
+
 
   return (
     <div>
@@ -84,10 +82,10 @@ const Scoreboard: React.FC<ScoreboardProps> = ({ scores }) => {
           ))}
         </tbody>
       </Table>
-      <div style={{ textAlign: 'center' }}>
-        {currentPage > 1 && <Button onClick={() => setCurrentPage(currentPage - 1)}>Previous</Button>}
-        {currentPage < Math.ceil(scores.length / PAGE_SIZE) && <Button onClick={() => setCurrentPage(currentPage + 1)}>Next</Button>}
-      </div>
+      <div style={{ textAlign: 'center', margin: '20px 0' }}>
+  {currentPage > 1 && <Button onClick={() => setCurrentPage(currentPage - 1)}>Previous</Button>}
+  {currentPage < Math.ceil(scores.length / PAGE_SIZE) && <Button onClick={() => setCurrentPage(currentPage + 1)}>Next</Button>}
+</div>
     </div>
   );
 };

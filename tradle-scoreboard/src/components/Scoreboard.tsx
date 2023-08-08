@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState } from 'react';
-import styled from 'styled-components';
+import { Box, Table as ChakraTable, Thead, Tbody, Tr, Th, Td, Button as ChakraButton, Text, Center, Stack } from "@chakra-ui/react";
 
 interface Score {
   name: string;
@@ -12,81 +12,46 @@ interface ScoreboardProps {
   scores: Score[];
 }
 
-
-
 const PAGE_SIZE = 10;
-
-const Table = styled.table`
-  width: 80%;
-  border-collapse: separate;
-  border-spacing: 0;
-  margin: 0 auto;
-  color: #ddd;
-  background-color: #333;
-  border-radius: 15px;
-  overflow: hidden;
-  box-shadow: 2px 3px 4px rgba(0, 0, 0, 0.2);
-
-  th, td {
-    padding: 10px;
-    border-bottom: 1px solid #888;
-    text-align: center;
-  }
-`;
-
-export const Button = styled.button`
-  padding: 10px;
-  border-radius: 5px;
-  border: none;
-  background-color: #008CBA;
-  color: white;
-  cursor: pointer;
-  margin: 10px; // This adds margin around the button
-
-  &:hover {
-    background-color: #007B9A;
-  }
-`;
-
-const Title = styled.h2`
-text-align: center;
-margin-bottom: 30px;
-color:white;
-`;
 
 const Scoreboard: React.FC<ScoreboardProps> = ({ scores }) => {
   const [currentPage, setCurrentPage] = useState(1);
   
   const paginatedScores = scores.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
-
-
   return (
-    <div>
-      <Title>Today's Score 🏆</Title>
-      <Table>
-        <thead>
-          <tr>
-            <th>Rank</th>
-            <th>Name</th>
-            <th>Attempts</th>
-          </tr>
-        </thead>
-        <tbody>
+    <Stack bg="whiteAlpha.600" p={5} borderRadius="md" boxShadow="md">
+
+    <Box > 
+      <Center mb={8}>
+        <Text fontSize="3xl" color="black" as={"b"} >Today's Leaderboard 🏆</Text>
+      </Center>
+      <ChakraTable  variant="simple" size="lg" width="80%" m="auto" bg="#333" borderRadius="md" boxShadow="2xl" color="white">
+        <Thead>
+          <Tr  >
+            <Th  color="white" >Rank</Th>
+            <Th  color="white">Name</Th>
+            <Th  color="white">Attempts</Th>
+          </Tr>
+        </Thead>
+        <Tbody>
           {paginatedScores.map((score, index) => (
-            <tr key={index}>
-              <td>{score.rank}</td>
-              <td>{score.name}</td>
-              <td>{score.attempts}/6</td>
-            </tr>
+            <Tr key={index}>
+              <Td>{score.rank}</Td>
+              <Td>{score.name}</Td>
+              <Td>{score.attempts}/6</Td>
+            </Tr>
           ))}
-        </tbody>
-      </Table>
-      <div style={{ textAlign: 'center', margin: '20px 0' }}>
-  {currentPage > 1 && <Button onClick={() => setCurrentPage(currentPage - 1)}>Previous</Button>}
-  {currentPage < Math.ceil(scores.length / PAGE_SIZE) && <Button onClick={() => setCurrentPage(currentPage + 1)}>Next</Button>}
-</div>
-    </div>
+        </Tbody>
+      </ChakraTable>
+      <Center mt={6}>
+        {currentPage > 1 && 
+          <ChakraButton colorScheme="blue" onClick={() => setCurrentPage(currentPage - 1)} mr={3}>Previous</ChakraButton>}
+        {currentPage < Math.ceil(scores.length / PAGE_SIZE) && 
+          <ChakraButton colorScheme="blue" onClick={() => setCurrentPage(currentPage + 1)}>Next</ChakraButton>}
+      </Center>
+    </Box>
+          </Stack>
   );
 };
 

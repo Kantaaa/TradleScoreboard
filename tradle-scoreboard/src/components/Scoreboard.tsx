@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { useState } from 'react';
-import { Box, Table as ChakraTable, Thead, Tbody, Tr, Th, Td, Button as ChakraButton, Text, Center, Stack, AbsoluteCenter } from "@chakra-ui/react";
-import { Title } from '../styles/Navbar.styles';
+import { Box, Table as ChakraTable, Thead, Tbody, Tr, Th, Td, Button as ChakraButton, Text, Center, Stack } from "@chakra-ui/react";
 
 interface Score {
   name: string;

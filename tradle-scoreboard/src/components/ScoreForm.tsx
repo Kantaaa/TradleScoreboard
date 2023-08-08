@@ -1,55 +1,89 @@
 import { useState } from 'react';
 import { Score } from './../types';
-import { Button, Input, Form } from './../styles/App.styles';
+import { Box, Button, FormControl, FormLabel, Input, HStack, useToast } from "@chakra-ui/react";
 
 
 interface ScoreFormProps {
-  onSubmitScore: (score: Score) => void;  // Update this
+  onSubmitScore: (score: Score) => void;
 }
 
 const ScoreForm: React.FC<ScoreFormProps> = ({ onSubmitScore }) => {
   const [name, setName] = useState('');
   const [score, setScore] = useState('');
 
+  const toast = useToast();
+
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    // Check for empty fields
     if (name.trim() === '' || score.trim() === '') {
-      alert('Both fields must be filled out.');
+      toast({
+        title: "Error.",
+        description: "Both fields must be filled out.",
+        status: "error",
+        duration: 9000,
+        isClosable: true,
+      });
       return;
     }
   
-    // Parse the score to get the number of attempts.
     const attemptsMatch = score.match(/(\d+)\/6/);
     let attempts: number | null = attemptsMatch ? Number(attemptsMatch[1]) : null;
     
     if (attempts === null || isNaN(attempts) || attempts === 0) {
-      alert('Invalid score format. Attempts must be a number greater than 0.');
+      toast({
+        title: "Error.",
+        description: "Invalid score format. Attempts must be a number greater than 0.",
+        status: "error",
+        duration: 9000,
+        isClosable: true,
+      });
       return;
     }
   
-    // Create the new score.
     const newScore: Score = {
       name,
-      attempts: attempts as number, // assert that attempts is not null here
-      rank: 0, // rank will be calculated after sorting
+      attempts: attempts as number,
+      rank: 0,
       date: new Date().toISOString().split('T')[0],
     };
 
-    onSubmitScore(newScore); 
+    onSubmitScore(newScore);
   
-    // Reset the input fields.
     setName('');
     setScore('');
   };
 
   return (
-    <Form onSubmit={handleSubmit}>
-      <Input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Player name" />
-      <Input type="text" value={score} onChange={(e) => setScore(e.target.value)} placeholder="Score" />
-      <Button type="submit">Submit</Button>
-    </Form>
+    <Box as="form" onSubmit={handleSubmit} width="100%" maxWidth="700px" margin="0 auto" bg="whiteAlpha.600" p={5}           
+    borderRadius="md" boxShadow="md">
+      <HStack spacing={8} direction={"row"}>
+        <FormControl>
+          <FormLabel htmlFor="player-name">Player Name</FormLabel>
+          <Input 
+            id="player-name"
+            type="text" 
+            value={name} 
+            onChange={(e) => setName(e.target.value)} 
+            placeholder="Player Name" 
+            />
+        </FormControl>
+
+        <FormControl>
+          <FormLabel htmlFor="score">Score</FormLabel>
+          <Input 
+            id="score"
+            type="text" 
+            value={score} 
+            onChange={(e) => setScore(e.target.value)} 
+            placeholder="Score (e.g., 5/6)" 
+            />
+        </FormControl>
+            
+
+        <Button type="submit" colorScheme="whatsapp"  marginTop="8" size={"md"} >Submit</Button>
+      </HStack>
+    </Box>
   );
 };
 

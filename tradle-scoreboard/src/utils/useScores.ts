@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import dayjs from 'dayjs';
 import { Score } from './../types';
-import { collection, query, where, getDocs,addDoc  } from "firebase/firestore"; // <-- Import necessary Firestore functions
+import { collection, query, where, getDocs,addDoc, doc, setDoc  } from "firebase/firestore"; // <-- Import necessary Firestore functions
 import { db } from './firebase';
 
 
@@ -43,33 +43,44 @@ export const useScores = (testData: Score[]) => {
     return scores;
   };
 
+  const assignRanks = (sortedScores: Score[]) => {
+    let currentRank = 1;
+    let prevAttempts = sortedScores[0].attempts;
+    for (let i = 0; i < sortedScores.length; i++) {
+      if (sortedScores[i].attempts !== prevAttempts) {
+        currentRank = i + 1;
+        prevAttempts = sortedScores[i].attempts;
+      }
+      sortedScores[i].rank = currentRank;
+    }
+    return sortedScores;
+  };
+
   const handleScoreSubmit = async (newScore: Score) => {
     newScore.timestamp = Date.now();
     const updatedScores = [...scores, newScore];
     updatedScores.sort((a, b) => a.attempts - b.attempts || a.name.localeCompare(b.name));
 
-    let currentRank = 1;
-    let prevAttempts = updatedScores[0].attempts;
-    for (let i = 0; i < updatedScores.length; i++) {
-      if (updatedScores[i].attempts > prevAttempts) {
-        currentRank = i + 1;
-        prevAttempts = updatedScores[i].attempts;
-      }
-      updatedScores[i].rank = currentRank;
+    // Assign ranks
+    const rankedScores = assignRanks(updatedScores);
+
+    // Update the newScore rank based on the rankedScores
+    const newScoreWithRank = rankedScores.find(s => s.id === newScore.id);
+    if (newScoreWithRank) {
+      newScore.rank = newScoreWithRank.rank;
     }
 
-    setScores(updatedScores);
-    localStorage.setItem(newScore.date, JSON.stringify(updatedScores));
-    setScores(updatedScores.filter(score => score.date === dayjs(selectedDate).format('YYYY-MM-DD')));
-    // After setting scores, also store them in local storage.
-    localStorage.setItem(newScore.date, JSON.stringify(updatedScores));
-    // Also set the scores state to the scores for the selected day.
-    setScores(updatedScores.filter(score => score.date === dayjs(selectedDate).format('YYYY-MM-DD')));
-
-    // Store the new score in Firestore
+    // Save the new score with its rank to Firestore
     const scoresCollection = collection(db, 'scores');
     await addDoc(scoresCollection, newScore);
-  };
+
+    setScores(rankedScores);
+    localStorage.setItem(newScore.date, JSON.stringify(rankedScores));
+    setScores(rankedScores.filter(score => score.date === dayjs(selectedDate).format('YYYY-MM-DD')));
+};
+
+
+
 
   const syncWithFirestore = async () => {
     const firestoreScores = await fetchScoresFromFirestore(selectedDate);

@@ -43,13 +43,17 @@ const App: React.FC = () => {
     }, []);
 
     const filteredScores = scores.filter(score => score.date === selectedDate.toISOString().split('T')[0]);
+    const scoresWithRanks = filteredScores.map(score => ({
+        ...score,
+        rank: score.rank || 0 // Assign a default rank of 0 if rank is undefined
+      }));
 
     return (
         <ChakraProvider>
             <Stack spacing={5}>
                 <Navbar onDateChange={setSelectedDate} />
                 <ScoreForm onSubmitScore={handleSubmitScore} />
-                <Scoreboard scores={filteredScores} />
+                <Scoreboard scores={scoresWithRanks} />
             </Stack>
         </ChakraProvider>
     );

@@ -44,9 +44,10 @@ const ScoreForm: React.FC<ScoreFormProps> = ({ onSubmitScore }) => {
     const newScore: Score = {
       name,
       attempts: attempts as number,
-      rank: 0,
       date: new Date().toISOString().split('T')[0],
+      timestamp: Date.now(),
     };
+    
 
     onSubmitScore(newScore);
   

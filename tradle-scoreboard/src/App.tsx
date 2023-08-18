@@ -7,21 +7,22 @@ import Scoreboard from './components/Scoreboard';
 import ScoreForm from './components/ScoreForm';
 import { Score } from './types';
 import { Stack, ChakraProvider } from "@chakra-ui/react";
+import { assignRanks } from './utils/scoreUtils';
+
 import "react-datepicker/dist/react-datepicker.css";
 
 const App: React.FC = () => {
     const [scores, setScores] = useState<Score[]>([]);
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-
+    
     const handleSubmitScore = async (newScore: Score) => {
         try {
             await addDoc(collection(db, "scores"), newScore);
-            setScores(prevScores => [...prevScores, newScore]);
         } catch (error) {
             console.error("Error adding score:", error);
         }
     };
-
+    
     useEffect(() => {
         const scoresCollection = collection(db, 'scores');
 
@@ -43,17 +44,16 @@ const App: React.FC = () => {
     }, []);
 
     const filteredScores = scores.filter(score => score.date === selectedDate.toISOString().split('T')[0]);
-    const scoresWithRanks = filteredScores.map(score => ({
-        ...score,
-        rank: score.rank || 0 // Assign a default rank of 0 if rank is undefined
-      }));
+    // Sort by attempts in ascending order
+    filteredScores.sort((a, b) => a.attempts - b.attempts || a.name.localeCompare(b.name));
+    const rankedScores = assignRanks(filteredScores);
 
     return (
         <ChakraProvider>
             <Stack spacing={5}>
                 <Navbar onDateChange={setSelectedDate} />
                 <ScoreForm onSubmitScore={handleSubmitScore} />
-                <Scoreboard scores={scoresWithRanks} />
+                <Scoreboard scores={rankedScores} />
             </Stack>
         </ChakraProvider>
     );

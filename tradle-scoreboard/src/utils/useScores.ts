@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import dayjs from 'dayjs';
 import { Score } from './../types';
-import { collection, query, where, getDocs, addDoc } from "firebase/firestore";
+import { collection, query, where, getDocs, addDoc, updateDoc, doc } from "firebase/firestore";
 import { db } from './firebase';
 import { assignRanks } from './../utils/scoreUtils';
 
@@ -43,22 +43,40 @@ export const useScores = (testData: Score[]) => {
     return assignRanks(fetchedScores); // Assign ranks to fetched scores and return
   };
 
-  const handleScoreSubmit = async (newScore: Score) => {
-    newScore.timestamp = Date.now();
-    const updatedScores = [...scores, newScore];
-    updatedScores.sort((a, b) => a.attempts - b.attempts || a.name.localeCompare(b.name));
 
-    // After sorting and ranking
-    const rankedScores = assignRanks(updatedScores);
+const handleScoreSubmit = async (newScore: Score) => {
+    try {
+        // Fetch all scores for the current date from the database
+        const currentScores = await fetchScoresFromFirestore(selectedDate);
+        
+        // Add the new score to this list
+        const allScores = [...currentScores, newScore];
+        
+        // Compute the ranks for all scores
+        const rankedScores = assignRanks(allScores);
+        
+        // Find the rank of the new score
+        const newScoreWithRank = rankedScores.find(score => score.name === newScore.name && score.attempts === newScore.attempts);
+        
+        if (newScoreWithRank) {
+            // Write the new score with its computed rank to the database
+            await addDoc(collection(db, "scores"), newScoreWithRank);
+            
+            // Update any existing scores in the database that have changed rank values
+            for (const score of rankedScores) {
+                if (score.id) {
+                    await updateDoc(doc(db, "scores", score.id), {
+                        ...score,
+                        rank: score.rank  // Ensure rank is included in the data being written
+                    });
+                }
+            }
+        }
+    } catch (error) {
+        console.error("Error adding/updating score:", error);
+    }
+};
 
-    // Save the new score to Firestore (no need to save rank as it's computed dynamically)
-    const scoresCollection = collection(db, 'scores');
-    await addDoc(scoresCollection, newScore);
-
-    setScores(rankedScores);
-    localStorage.setItem(newScore.date, JSON.stringify(rankedScores));
-    setScores(rankedScores.filter(score => score.date === dayjs(selectedDate).format('YYYY-MM-DD')));
-  };
 
   const syncWithFirestore = async () => {
     const firestoreScores = await fetchScoresFromFirestore(selectedDate);
@@ -66,15 +84,24 @@ export const useScores = (testData: Score[]) => {
     const localScores = localScoresString ? JSON.parse(localScoresString) : [];
 
     const mergedScores = [...localScores, ...firestoreScores].reduce<Score[]>((acc, score) => {
-      const existingScore = acc.find(s => s.id === score.id);
-      if (!existingScore) {
-        acc.push(score);
-      } else if (score.timestamp && existingScore.timestamp && score.timestamp > existingScore.timestamp) {
-        Object.assign(existingScore, score);
+      if (score.id) {
+        const existingScore = acc.find(s => s.id === score.id);
+        if (!existingScore) {
+          acc.push(score);
+        } else if (score.timestamp && existingScore.timestamp && score.timestamp > existingScore.timestamp) {
+          Object.assign(existingScore, score);
+        }
+      } else {
+        // If the score doesn't have an id, it's a locally added score
+        // Check if it's already in the accumulator based on other properties (e.g., name, attempts, timestamp)
+        const existingScore = acc.find(s => s.name === score.name && s.attempts === score.attempts && s.timestamp === score.timestamp);
+        if (!existingScore) {
+          acc.push(score);
+        }
       }
       return acc;
     }, []);
-
+    
     // Assign ranks to merged scores
     const rankedMergedScores = assignRanks(mergedScores);
 
@@ -86,5 +113,5 @@ export const useScores = (testData: Score[]) => {
     syncWithFirestore();
   }, [selectedDate]);
 
-  return { scores, selectedDate, handleScoreSubmit, setSelectedDate };
+  return { scores, selectedDate, setSelectedDate };
 };

@@ -67,7 +67,6 @@ const handleScoreSubmit = async (newScore: Score) => {
                 if (score.id) {
                     await updateDoc(doc(db, "scores", score.id), {
                         ...score,
-                        rank: score.rank  // Ensure rank is included in the data being written
                     });
                 } else {
                   console.error("Score ID is undefined:", score);

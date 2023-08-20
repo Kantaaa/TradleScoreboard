@@ -2,14 +2,12 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { Box, Table as ChakraTable, Thead, Tbody, Tr, Th, Td, Button as ChakraButton, Text, Center, Stack, Input } from "@chakra-ui/react";
 import { collection, query, where, getDocs } from "firebase/firestore"; 
-import { db } from './../utils/firebase'; // Import your Firestore instance
+import { db } from './../utils/firebase'; 
+import { assignRanks } from '../utils/scoreUtils';
+import { Score } from './../types';
 
-interface Score {
-  date: string;
-  name: string;
-  attempts: number;
-  rank: number;
-}
+
+
 
 interface ScoreboardProps {
   scores: Score[];
@@ -37,9 +35,12 @@ const Scoreboard: React.FC<ScoreboardProps> = ({ scores }) => {
 
   useEffect(() => {
     fetchScoresForDate(selectedDate).then((newScores: Score[]) => {
-      setFilteredScores(newScores);
+      // Sort the scores based on the number of attempts (ascending)
+      const sortedScores = newScores.sort((a, b) => a.attempts - b.attempts);
+      setFilteredScores(sortedScores);
     });
   }, [selectedDate]);
+  
 
   
   // Paginate the filtered scores
@@ -68,24 +69,25 @@ const Scoreboard: React.FC<ScoreboardProps> = ({ scores }) => {
             </Tr>
           </Thead>
           <Tbody>
-            {filteredScores.length > 0 ? (
-              paginatedScores.map((score, index) => (
-                <Tr key={index}>
-                  <Td>{score.rank}</Td>
-                  <Td>{score.name}</Td>
-                  <Td>{score.attempts}/6</Td>
-                </Tr>
-              ))
-            ) : (
-              <Tr>
-                <Td colSpan={3}>
-                  <Center>
-                    <Text color="white">No data for the selected date.</Text>
-                  </Center>
-                </Td>
-              </Tr>
-            )}
-          </Tbody>
+  {filteredScores.length > 0 ? (
+    paginatedScores.map((score, index) => (
+      <Tr key={index}>
+        <Td>{index + 1}</Td>  {/* Displaying rank based on index */}
+        <Td>{score.name}</Td>
+        <Td>{score.attempts}/6</Td>
+      </Tr>
+    ))
+  ) : (
+    <Tr>
+      <Td colSpan={3}>
+        <Center>
+          <Text color="white">No data for the selected date.</Text>
+        </Center>
+      </Td>
+    </Tr>
+  )}
+</Tbody>
+
         </ChakraTable>
         <Center mt={6}>
           {currentPage > 1 &&

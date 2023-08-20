@@ -15,8 +15,8 @@ import "react-datepicker/dist/react-datepicker.css";
 
 
 const App: React.FC = () => {
-    const [scores, setScores] = useState<Score[]>([]);
-    const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [scores, setScores] = useState<Score[]>([]);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
     
     const handleSubmitScore = async (newScore: Score) => {
       try {
@@ -55,6 +55,7 @@ const App: React.FC = () => {
     filteredScores.sort((a, b) => a.attempts - b.attempts || a.name.localeCompare(b.name));
     const rankedScores = assignRanks(filteredScores);
 
+
   
     //Add test data 
     const addTestData = () => {
@@ -71,8 +72,8 @@ const App: React.FC = () => {
           const testScore: Score = {
             name: player,
             attempts,
-            rank: 0,
-            date: dateString
+            date: dateString,
+            rank: 0
           };
   
           handleSubmitScore(testScore);

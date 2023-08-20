@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import dayjs from 'dayjs';
 import { Score } from './../types';
-import { collection, query, where, getDocs, addDoc, updateDoc, doc } from "firebase/firestore";
+import { collection, query, where, getDocs, addDoc, updateDoc, doc, deleteDoc } from "firebase/firestore";
 import { db } from './firebase';
 import { assignRanks } from './../utils/scoreUtils';
 
@@ -69,7 +69,9 @@ const handleScoreSubmit = async (newScore: Score) => {
                         ...score,
                         rank: score.rank  // Ensure rank is included in the data being written
                     });
-                }
+                } else {
+                  console.error("Score ID is undefined:", score);
+              }
             }
         }
     } catch (error) {
@@ -111,6 +113,22 @@ const handleScoreSubmit = async (newScore: Score) => {
 
   useEffect(() => {
     syncWithFirestore();
+    // Check and archive previous day's scores
+    const archivePreviousDayScores = async () => {
+      const yesterday = dayjs().subtract(1, 'day').format('YYYY-MM-DD');
+      const scoresFromYesterday = scores.filter(score => score.date === yesterday);
+
+      if (scoresFromYesterday.length > 0) {
+          // Move them to archived_scores collection and remove from scores collection
+          for (let score of scoresFromYesterday) {
+              await addDoc(collection(db, 'archived_scores'), score);
+              // Assuming score has an 'id' field that corresponds to its document ID in Firestore
+              await deleteDoc(doc(db, 'scores', score.id as string));
+            }
+      }
+  };
+
+  archivePreviousDayScores();
   }, [selectedDate]);
 
   return { scores, selectedDate, setSelectedDate };

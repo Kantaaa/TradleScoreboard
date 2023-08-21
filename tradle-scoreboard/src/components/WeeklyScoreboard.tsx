@@ -79,8 +79,7 @@ return (
         <Tbody>
           {sortedScores.map((score, index) => (
             <Tr key={index}>
-                      <Td>{index + 1}</Td>  {/* Displaying rank based on index */}
-
+              <Td>{score.rank}</Td>
               <Td>{score.name}</Td>
               <Td>{score.attempts}</Td>
             </Tr>

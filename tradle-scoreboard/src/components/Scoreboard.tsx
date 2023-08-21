@@ -36,7 +36,7 @@ const Scoreboard: React.FC<ScoreboardProps> = ({ scores }) => {
   useEffect(() => {
     fetchScoresForDate(selectedDate).then((newScores: Score[]) => {
       // Sort the scores based on the number of attempts (ascending)
-      const sortedScores = newScores.sort((a, b) => a.attempts - b.attempts);
+      const sortedScores = assignRanks(newScores);  
       setFilteredScores(sortedScores);
     });
   }, [selectedDate]);
@@ -49,7 +49,7 @@ const Scoreboard: React.FC<ScoreboardProps> = ({ scores }) => {
   return (
     <Stack bg="whiteAlpha.600" p={5} borderRadius="md" boxShadow="md">
       <Center mb={8}>
-        <Text fontSize="3xl" color="black" as={"b"}>Today's Leaderboard 🏆</Text>
+        <Text fontSize="3xl" color="black" as={"b"}>Daily Leaderboard 🏆</Text>
       </Center>
       <Center>
         <Input
@@ -72,7 +72,7 @@ const Scoreboard: React.FC<ScoreboardProps> = ({ scores }) => {
   {filteredScores.length > 0 ? (
     paginatedScores.map((score, index) => (
       <Tr key={index}>
-        <Td>{index + 1}</Td>  {/* Displaying rank based on index */}
+        <Td>{score.rank}</Td>  
         <Td>{score.name}</Td>
         <Td>{score.attempts}/6</Td>
       </Tr>

@@ -10,6 +10,8 @@ import { Stack, ChakraProvider, Button } from "@chakra-ui/react";
 import { assignRanks } from './utils/scoreUtils';
 import { BrowserRouter as Router, Routes, Route, useLocation  } from 'react-router-dom';
 import WeeklyScoreboard from './components/WeeklyScoreboard';
+import MonthlyScoreboard from './components/MonthlyScoreboard';
+
 
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -96,7 +98,8 @@ const App: React.FC = () => {
                       
             <Routes>
               <Route path="/" element={<Scoreboard scores={rankedScores} />} />
-              <Route path="/this-week" element={<WeeklyScoreboard />} />
+              <Route path="/weekly" element={<WeeklyScoreboard/>} />
+              <Route path="/monthly" element={<MonthlyScoreboard/>} />
             </Routes>
           </Stack>
         );

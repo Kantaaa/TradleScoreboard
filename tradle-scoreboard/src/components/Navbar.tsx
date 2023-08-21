@@ -16,8 +16,11 @@ const Navbar: React.FC<NavbarProps> = ({ onDateChange }) => {
         <Box as={Link} to="/" p={2} borderRadius="md" bg="#333" _hover={{ bg: "#444" }} color={"white"}>
           Daily Score
         </Box>
-        <Box as={Link} to="/this-week" p={2} borderRadius="md" bg="#333" _hover={{ bg: "#444" }} color={"white"}>
+        <Box as={Link} to="/weekly" p={2} borderRadius="md" bg="#333" _hover={{ bg: "#444" }} color={"white"}>
           Weekly Score
+        </Box>
+        <Box as={Link} to="/monthly" p={2} borderRadius="md" bg="#333" _hover={{ bg: "#444" }} color={"white"}>
+          Monthly Score
         </Box>
       </Stack>
     </Flex>

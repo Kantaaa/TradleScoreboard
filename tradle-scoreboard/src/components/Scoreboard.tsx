@@ -20,10 +20,14 @@ const fetchScoresForDate = async (date: string): Promise<Score[]> => {
   const dateQuery = query(scoresCollection, where('date', '==', date));
   const snapshot = await getDocs(dateQuery);
   
-  const fetchedScores: Score[] = snapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data() as Score
-  }));
+  const fetchedScores: Score[] = snapshot.docs.map(doc => {
+    const data = doc.data() as Score;
+    data.name = data.name.toUpperCase(); // Normalize the name to uppper
+    return {
+      id: doc.id,
+      ...data
+    };
+  });
 
   return fetchedScores;
 };

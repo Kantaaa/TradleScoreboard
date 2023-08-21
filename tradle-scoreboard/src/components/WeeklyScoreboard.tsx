@@ -38,10 +38,11 @@ import { Box, Table as ChakraTable, Thead, Tbody, Tr, Th, Td, Text, Center, Stac
 // Aggregate scores for each player over the week
 const aggregatedScores: { [name: string]: number } = {};
 weeklyScores.forEach((score) => {
-  if (aggregatedScores[score.name]) {
-    aggregatedScores[score.name] += score.attempts;
+  const normalizedName = score.name.toUpperCase(); // Normalize the name to upper
+  if (aggregatedScores[normalizedName]) {
+    aggregatedScores[normalizedName] += score.attempts;
   } else {
-    aggregatedScores[score.name] = score.attempts;
+    aggregatedScores[normalizedName] = score.attempts;
   }
 });
 

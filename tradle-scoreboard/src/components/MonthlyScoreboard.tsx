@@ -47,24 +47,31 @@ const MonthlyScoreboard: React.FC = () => {
   }, [monthOffset]);
 
   // Aggregate scores for each player over the month
-  const aggregatedScores: { [name: string]: number } = {};
-  monthlyScores.forEach((score) => {
-    const normalizedName = score.name.toUpperCase();
-    if (aggregatedScores[normalizedName]) {
-      aggregatedScores[normalizedName] += score.attempts;
-    } else {
-      aggregatedScores[normalizedName] = score.attempts;
-    }
-  });
+const aggregatedScores: { [name: string]: { totalAttempts: number, totalGames: number } } = {};
+monthlyScores.forEach((score) => {
+  const normalizedName = score.name.toUpperCase(); // Normalize the name to upper
+  if (aggregatedScores[normalizedName]) {
+    aggregatedScores[normalizedName].totalAttempts += score.attempts;
+    aggregatedScores[normalizedName].totalGames += 1;
+  } else {
+    aggregatedScores[normalizedName] = { totalAttempts: score.attempts, totalGames: 1 };
+  }
+});
 
-  const aggregatedScoreArray: Score[] = Object.keys(aggregatedScores).map((name) => ({
+const aggregatedScoreArray: Score[] = Object.keys(aggregatedScores).map((name) => {
+  const { totalAttempts, totalGames } = aggregatedScores[name];
+  const averageAttempts = totalAttempts / totalGames;
+  return {
     name,
-    attempts: aggregatedScores[name],
+    attempts: averageAttempts, // Now storing the average attempts
     rank: 0,
-    date: '',
-  }));
+    date: '', // Date is not relevant for aggregated scores
+  };
+});
 
-  const sortedScores = assignRanks(aggregatedScoreArray);
+// Sort and rank the aggregated scores
+const sortedScores = assignRanks(aggregatedScoreArray);
+
 
   return (
     <Stack bg="whiteAlpha.600" p={5} borderRadius="md" boxShadow="md">

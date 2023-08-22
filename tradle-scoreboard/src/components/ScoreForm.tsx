@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Score } from './../types';
-import { Box, Button, FormControl, FormLabel, Input, HStack, useToast } from "@chakra-ui/react";
+import { Box, Button, FormControl, FormLabel, Input, HStack, useToast, Select  } from "@chakra-ui/react";
 
 
 interface ScoreFormProps {
@@ -10,6 +10,8 @@ interface ScoreFormProps {
 const ScoreForm: React.FC<ScoreFormProps> = ({ onSubmitScore }) => {
   const [name, setName] = useState('');
   const [score, setScore] = useState('');
+  const [previousNames, setPreviousNames] = useState<string[]>([]);
+
 
   const toast = useToast();
 
@@ -40,6 +42,10 @@ const ScoreForm: React.FC<ScoreFormProps> = ({ onSubmitScore }) => {
       });
       return;
     }
+    
+    if (!previousNames.includes(name)) {
+      setPreviousNames([...previousNames, name]);
+    }
   
     const newScore: Score = {
       name,
@@ -68,19 +74,32 @@ const ScoreForm: React.FC<ScoreFormProps> = ({ onSubmitScore }) => {
             type="text" 
             value={name} 
             onChange={(e) => setName(e.target.value)} 
-            placeholder="Player Name" 
-            />
+            placeholder="Player Name"
+            list="previous-names" // Add this line
+          />
+          <datalist id="previous-names"> {/* Add this block */}
+            {previousNames.map((name, index) => (
+              <option key={index} value={name} />
+            ))}
+          </datalist>
         </FormControl>
 
         <FormControl>
           <FormLabel htmlFor="score">Score</FormLabel>
-          <Input 
+          <Select 
             id="score"
-            type="text" 
             value={score} 
             onChange={(e) => setScore(e.target.value)} 
-            placeholder="Score (e.g., 5/6)" 
-            />
+          >
+            <option value="" disabled>Select your score</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">Very close! (+7)</option>
+          </Select>
         </FormControl>
             
 

@@ -29,10 +29,13 @@ const ScoreForm: React.FC<ScoreFormProps> = ({ onSubmitScore }) => {
       return;
     }
   
+
+    //Formatting score/attempts input
     const attemptsMatch = score.match(/(\d+)\/6/);
-    let attempts: number | null = attemptsMatch ? Number(attemptsMatch[1]) : null;
-    
-    if (attempts === null || isNaN(attempts) || attempts === 0) {
+
+    let attempts: number | null = Number(score);
+
+    if (isNaN(attempts) || attempts === 0) {
       toast({
         title: "Error.",
         description: "Invalid score format. Attempts must be a number greater than 0.",
@@ -42,20 +45,18 @@ const ScoreForm: React.FC<ScoreFormProps> = ({ onSubmitScore }) => {
       });
       return;
     }
-    
-    if (!previousNames.includes(name)) {
-      setPreviousNames([...previousNames, name]);
-    }
-  
+
     const newScore: Score = {
       name,
-      attempts: attempts as number,
+      attempts: attempts,
       date: new Date().toISOString().split('T')[0],
       timestamp: Date.now(),
       rank: 0
     };
     
-    
+    if (!previousNames.includes(name)) {
+      setPreviousNames([...previousNames, name]);
+    }
 
     onSubmitScore(newScore);
   

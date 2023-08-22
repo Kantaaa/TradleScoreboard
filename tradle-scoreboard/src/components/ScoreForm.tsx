@@ -98,7 +98,7 @@ const ScoreForm: React.FC<ScoreFormProps> = ({ onSubmitScore }) => {
             <option value="4">4</option>
             <option value="5">5</option>
             <option value="6">6</option>
-            <option value="7">Very close! (+7)</option>
+            <option value="7">No Luck Today :/ (7)</option>
           </Select>
         </FormControl>
             

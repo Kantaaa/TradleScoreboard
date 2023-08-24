@@ -4,6 +4,11 @@ import { db } from '../utils/firebase';
 import { Score } from '../types';
 import { assignRanks } from '../utils/scoreUtils';
 import { Box, Table as ChakraTable, Thead, Tbody, Tr, Th, Td, Text, Center, Stack, Button, HStack } from "@chakra-ui/react";
+type AggregatedScore = {
+  totalAttempts: number;
+  totalGames: number;
+  gamesPlayed?: number;
+};
 
   const WeeklyScoreboard: React.FC = () => {
     const [weeklyScores, setWeeklyScores] = useState<Score[]>([]);
@@ -19,9 +24,9 @@ import { Box, Table as ChakraTable, Thead, Tbody, Tr, Th, Td, Text, Center, Stac
     endOfWeek.setDate(currentDate.getDate() - currentDate.getDay() + 5);
 
     const scoresRef = collection(db, 'scores');
-    const q = query(scoresRef, where('date', '>=', startOfWeek.toISOString().split('T')[0]), where('date', '<=', endOfWeek.toISOString().split('T')[0]));
+    const weeklyQuery = query(scoresRef, where('date', '>=', startOfWeek.toISOString().split('T')[0]), where('date', '<=', endOfWeek.toISOString().split('T')[0]));
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    const unsubscribe = onSnapshot(weeklyQuery, (snapshot) => {
       const newScores = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data() as Score,
@@ -36,25 +41,27 @@ import { Box, Table as ChakraTable, Thead, Tbody, Tr, Th, Td, Text, Center, Stac
 
   
 // Aggregate scores for each player over the week
-const aggregatedScores: { [name: string]: { totalAttempts: number, totalGames: number } } = {};
+const aggregatedScores: { [name: string]: AggregatedScore } = {};
 weeklyScores.forEach((score) => {
-  const normalizedName = score.name.toUpperCase(); // Normalize the name to upper
+const normalizedName = score.name.toUpperCase(); // Normalize the name to upper
   if (aggregatedScores[normalizedName]) {
     aggregatedScores[normalizedName].totalAttempts += score.attempts;
     aggregatedScores[normalizedName].totalGames += 1;
+    aggregatedScores[normalizedName].gamesPlayed = aggregatedScores[normalizedName].totalGames;
   } else {
-    aggregatedScores[normalizedName] = { totalAttempts: score.attempts, totalGames: 1 };
+    aggregatedScores[normalizedName] = { totalAttempts: score.attempts, totalGames: 1, gamesPlayed: 1 };
   }
 });
 
 const aggregatedScoreArray: Score[] = Object.keys(aggregatedScores).map((name) => {
-  const { totalAttempts, totalGames } = aggregatedScores[name];
+  const { totalAttempts, totalGames, gamesPlayed } = aggregatedScores[name];  // Include gamesPlayed
   const averageAttempts = totalAttempts / totalGames;
   return {
     name,
-    attempts: averageAttempts, // Now storing the average attempts
+    attempts: averageAttempts, 
     rank: 0,
-    date: '', // Date is not relevant for aggregated scores
+    date: '',
+    gamesPlayed
   };
 });
 
@@ -79,7 +86,9 @@ return (
           <Tr>
             <Th color="white">Rank</Th>
             <Th color="white">Name</Th>
-            <Th color="white">Attempts</Th>
+          <Th color="white">Attempts</Th>
+          <Th color="white">Games Played</Th>
+
           </Tr>
         </Thead>
         <Tbody>
@@ -88,6 +97,7 @@ return (
               <Td>{score.rank}</Td>
               <Td>{score.name}</Td>
               <Td>{score.attempts}</Td>
+              <Td>{score.gamesPlayed}</Td>
             </Tr>
           ))}
         </Tbody>

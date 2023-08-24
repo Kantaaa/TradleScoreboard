@@ -5,6 +5,12 @@ import { Score } from '../types';
 import { assignRanks } from '../utils/scoreUtils';
 import { Box, Table as ChakraTable, Thead, Tbody, Tr, Th, Td, Text, Center, Stack, Button, HStack } from "@chakra-ui/react";
 
+type AggregatedScore = {
+  totalAttempts: number;
+  totalGames: number;
+  gamesPlayed?: number;
+};
+
 const MonthlyScoreboard: React.FC = () => {
   const [monthlyScores, setMonthlyScores] = useState<Score[]>([]);
   const [monthOffset, setMonthOffset] = useState(0);
@@ -12,10 +18,8 @@ const MonthlyScoreboard: React.FC = () => {
   useEffect(() => {
     const currentDate = new Date();
     currentDate.setMonth(currentDate.getMonth() - monthOffset);
-
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
-
     const scoresRef = collection(db, 'scores');
     const monthlyScores: Score[] = [];
 
@@ -23,14 +27,11 @@ const MonthlyScoreboard: React.FC = () => {
       for (let day = 1; day <= 31; day++) {
         const date = new Date(year, month, day);
         if (date.getMonth() !== month) break;
-    
         const dayOfWeek = date.getDay();
-        if (dayOfWeek === 0 || dayOfWeek === 6) continue; // Skip weekends
-    
+        if (dayOfWeek === 0 || dayOfWeek === 6) continue;
         const dateString = date.toISOString().split('T')[0];
         const dayQuery = query(scoresRef, where('date', '==', dateString));
         const snapshot = await getDocs(dayQuery);
-    
         snapshot.docs.forEach((doc) => {
           monthlyScores.push({
             id: doc.id,
@@ -38,40 +39,36 @@ const MonthlyScoreboard: React.FC = () => {
           });
         });
       }
-    
       setMonthlyScores(monthlyScores);
     };
-    
-
     fetchScores();
   }, [monthOffset]);
 
-  // Aggregate scores for each player over the month
-const aggregatedScores: { [name: string]: { totalAttempts: number, totalGames: number } } = {};
-monthlyScores.forEach((score) => {
-  const normalizedName = score.name.toUpperCase(); // Normalize the name to upper
-  if (aggregatedScores[normalizedName]) {
-    aggregatedScores[normalizedName].totalAttempts += score.attempts;
-    aggregatedScores[normalizedName].totalGames += 1;
-  } else {
-    aggregatedScores[normalizedName] = { totalAttempts: score.attempts, totalGames: 1 };
-  }
-});
+  const aggregatedScores: { [name: string]: AggregatedScore } = {};
+  monthlyScores.forEach((score) => {
+    const normalizedName = score.name.toUpperCase();
+    if (aggregatedScores[normalizedName]) {
+      aggregatedScores[normalizedName].totalAttempts += score.attempts;
+      aggregatedScores[normalizedName].totalGames += 1;
+      aggregatedScores[normalizedName].gamesPlayed = aggregatedScores[normalizedName].totalGames;
+    } else {
+      aggregatedScores[normalizedName] = { totalAttempts: score.attempts, totalGames: 1, gamesPlayed: 1 };
+    }
+  });
 
-const aggregatedScoreArray: Score[] = Object.keys(aggregatedScores).map((name) => {
-  const { totalAttempts, totalGames } = aggregatedScores[name];
-  const averageAttempts = totalAttempts / totalGames;
-  return {
-    name,
-    attempts: averageAttempts, // Now storing the average attempts
-    rank: 0,
-    date: '', // Date is not relevant for aggregated scores
-  };
-});
+  const aggregatedScoreArray: Score[] = Object.keys(aggregatedScores).map((name) => {
+    const { totalAttempts, totalGames, gamesPlayed } = aggregatedScores[name];
+    const averageAttempts = totalAttempts / totalGames;
+    return {
+      name,
+      attempts: averageAttempts,
+      rank: 0,
+      date: '',
+      gamesPlayed
+    };
+  });
 
-// Sort and rank the aggregated scores
-const sortedScores = assignRanks(aggregatedScoreArray);
-
+  const sortedScores = assignRanks(aggregatedScoreArray);
 
   return (
     <Stack bg="whiteAlpha.600" p={5} borderRadius="md" boxShadow="md">
@@ -90,6 +87,7 @@ const sortedScores = assignRanks(aggregatedScoreArray);
             <Th color="white">Rank</Th>
             <Th color="white">Name</Th>
             <Th color="white">Attempts</Th>
+            <Th color="white">Games Played</Th>
           </Tr>
         </Thead>
         <Tbody>
@@ -98,6 +96,7 @@ const sortedScores = assignRanks(aggregatedScoreArray);
               <Td>{score.rank}</Td>
               <Td>{score.name}</Td>
               <Td>{score.attempts}</Td>
+              <Td>{score.gamesPlayed}</Td>
             </Tr>
           ))}
         </Tbody>

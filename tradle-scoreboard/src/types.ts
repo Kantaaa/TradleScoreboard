@@ -5,4 +5,5 @@ export type Score = {
   attempts: number;
   date: string;
   timestamp?: number;
+  gamesPlayed?: number; 
 };

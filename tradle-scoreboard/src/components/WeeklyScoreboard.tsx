@@ -38,6 +38,7 @@ type AggregatedScore = {
       unsubscribe();
     };
   }, [weekOffset]);
+  
 
   
 // Aggregate scores for each player over the week
@@ -66,20 +67,36 @@ const aggregatedScoreArray: Score[] = Object.keys(aggregatedScores).map((name) =
 });
 
 // Sort and rank the aggregated scores
-const sortedScores = assignRanks(aggregatedScoreArray);
+    const sortedScores = assignRanks(aggregatedScoreArray);
+    
+
+    //Display week number
+    const getWeekNumber = (date: Date) => {
+      const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
+      const pastDaysOfYear = (date.getTime() - firstDayOfYear.getTime()) / 86400000;
+      return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+    };
+  
+    const currentDate = new Date();
+    currentDate.setDate(currentDate.getDate() - 7 * weekOffset); // Adjust date based on weekOffset
+    const weekNumber = getWeekNumber(currentDate);
 
   
 
 return (
   <Stack bg="whiteAlpha.600" p={5} borderRadius="md" boxShadow="md">
     <Center mb={8}>
-      <Text fontSize="3xl" color="black" as={"b"}>Weekly Leaderboard 🏆</Text>
+      <Text fontSize="3xl" color="black" as={"b"}>Weekly Leaderboard 🏆 </Text>
       </Center>
       <Center mb={2}>
     <HStack spacing={4}> 
       <Button width="auto" onClick={() => setWeekOffset(Math.max(0, weekOffset - 1))} disabled={weekOffset === 0}>Next Week</Button>
       <Button width="auto" onClick={() => setWeekOffset(weekOffset + 1)}>Previous Week</Button>
       </HStack>
+    </Center>
+    <Center>
+      <Text fontSize="xl" as={"b"} color="black"> Week {weekNumber} </Text>
+
       </Center>
       <ChakraTable variant="simple" size="lg" width="80%" m="auto" bg="#333" borderRadius="md" boxShadow="2xl" color="white">
         <Thead>

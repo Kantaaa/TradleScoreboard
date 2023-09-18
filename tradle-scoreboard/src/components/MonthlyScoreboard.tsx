@@ -15,6 +15,11 @@ const MonthlyScoreboard: React.FC = () => {
   const [monthlyScores, setMonthlyScores] = useState<Score[]>([]);
   const [monthOffset, setMonthOffset] = useState(0);
 
+  const currentDate = new Date();
+  currentDate.setMonth(currentDate.getMonth() - monthOffset);
+  const currentMonth = currentDate.toLocaleString('default', { month: 'long' });
+  const currentYear = currentDate.getFullYear();  
+
   useEffect(() => {
     const currentDate = new Date();
     currentDate.setMonth(currentDate.getMonth() - monthOffset);
@@ -80,6 +85,10 @@ const MonthlyScoreboard: React.FC = () => {
           <Button width="auto" onClick={() => setMonthOffset(Math.max(0, monthOffset - 1))} disabled={monthOffset === 0}>Next Month</Button>
           <Button width="auto" onClick={() => setMonthOffset(monthOffset + 1)}>Previous Month</Button>
         </HStack>
+      </Center>
+      <Center>
+      <Text fontSize="xl" as={"b"} color="black"> {currentMonth.toUpperCase()} {currentYear}</Text>
+
       </Center>
       <ChakraTable variant="simple" size="lg" width="80%" m="auto" bg="#333" borderRadius="md" boxShadow="2xl" color="white">
         <Thead>

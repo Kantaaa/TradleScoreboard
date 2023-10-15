@@ -3,7 +3,7 @@ import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../utils/firebase';
 import { Score } from '../types';
 import { assignRanks } from '../utils/scoreUtils';
-import { Box, Table as ChakraTable, Thead, Tbody, Tr, Th, Td, Text, Center, Stack, Button, HStack } from "@chakra-ui/react";
+import {Table as ChakraTable, Thead, Tbody, Tr, Th, Td, Text, Center, Stack, Button, HStack } from "@chakra-ui/react";
 type AggregatedScore = {
   totalAttempts: number;
   totalGames: number;

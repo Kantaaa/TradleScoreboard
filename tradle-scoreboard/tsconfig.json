@@ -22,5 +22,5 @@
   },
   "include": [
     "src"
-, "populateFirestore.js"  ]
+, "populateFirestore.js", "firestoreScripts/updateFirestore.js", "firestoreScripts/populateFirestore.js"  ]
 }

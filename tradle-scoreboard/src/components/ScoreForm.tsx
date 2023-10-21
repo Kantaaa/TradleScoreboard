@@ -49,7 +49,8 @@ const ScoreForm: React.FC<ScoreFormProps> = ({ onSubmitScore }) => {
       attempts: attempts,
       date: new Date().toISOString().split('T')[0],
       timestamp: Date.now(),
-      rank: 0
+      rank: 0,
+      totalPoints: 0
     };
     
     if (!previousNames.includes(name)) {

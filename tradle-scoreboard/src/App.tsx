@@ -59,29 +59,29 @@ const App: React.FC = () => {
 
 
   
-    //Add test data 
-    const addTestData = () => {
-      const players = ['Kevin', 'Alice', 'Bob', 'Charlie', 'David', 'Eve'];
-      const days = [0, 1, 2, 3, 4]; // Monday to Friday
+    // //Add test data 
+    // const addTestData = () => {
+    //   const players = ['Kevin', 'Alice', 'Bob', 'Charlie', 'David', 'Eve'];
+    //   const days = [0, 1, 2, 3, 4]; // Monday to Friday
   
-      players.forEach((player) => {
-        days.forEach((day) => {
-          const date = new Date();
-          date.setDate(date.getDate() + day);
-          const dateString = date.toISOString().split('T')[0];
+    //   players.forEach((player) => {
+    //     days.forEach((day) => {
+    //       const date = new Date();
+    //       date.setDate(date.getDate() + day);
+    //       const dateString = date.toISOString().split('T')[0];
           
-          const attempts = Math.floor(Math.random() * 6) + 1; // Random attempts between 1 and 6
-          const testScore: Score = {
-            name: player,
-            attempts,
-            date: dateString,
-            rank: 0
-          };
+    //       const attempts = Math.floor(Math.random() * 6) + 1; // Random attempts between 1 and 6
+    //       const testScore: Score = {
+    //         name: player,
+    //         attempts,
+    //         date: dateString,
+    //         rank: 0
+    //       };
   
-          handleSubmitScore(testScore);
-        });
-      });
-    };
+    //       handleSubmitScore(testScore);
+    //     });
+    //   });
+    // };
     
   
 

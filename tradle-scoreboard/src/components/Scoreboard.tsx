@@ -70,6 +70,7 @@ const Scoreboard: React.FC<ScoreboardProps> = ({ scores }) => {
               <Th color="white">Rank</Th>
               <Th color="white">Name</Th>
               <Th color="white">Attempts</Th>
+              <Th color="white">Points</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -79,6 +80,7 @@ const Scoreboard: React.FC<ScoreboardProps> = ({ scores }) => {
         <Td>{score.rank}</Td>  
         <Td>{score.name}</Td>
         <Td>{score.attempts}/6</Td>
+        <Td>{score.point}</Td>
       </Tr>
     ))
   ) : (

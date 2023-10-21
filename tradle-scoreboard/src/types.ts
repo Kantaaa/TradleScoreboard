@@ -1,4 +1,5 @@
 export type Score = {
+  totalPoints: number;
   rank: number;
   id?: string; 
   name: string;
@@ -6,4 +7,7 @@ export type Score = {
   date: string;
   timestamp?: number;
   gamesPlayed?: number; 
+  point?: number; 
+  
+
 };

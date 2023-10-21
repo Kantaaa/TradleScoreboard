@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Flex, Text, Box, Stack } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 
@@ -7,7 +7,6 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({ onDateChange }) => {
-  const [startDate, setStartDate] = useState(new Date());
   
   return (
     <Flex as="nav" justify="space-between" align="center" p={4} bg="#1f1f1f">

@@ -30,8 +30,6 @@ const ScoreForm: React.FC<ScoreFormProps> = ({ onSubmitScore }) => {
     }
   
 
-    //Formatting score/attempts input
-    const attemptsMatch = score.match(/(\d+)\/6/);
 
     let attempts: number | null = Number(score);
 
@@ -51,7 +49,8 @@ const ScoreForm: React.FC<ScoreFormProps> = ({ onSubmitScore }) => {
       attempts: attempts,
       date: new Date().toISOString().split('T')[0],
       timestamp: Date.now(),
-      rank: 0
+      rank: 0,
+      totalPoints: 0
     };
     
     if (!previousNames.includes(name)) {
@@ -101,10 +100,8 @@ const ScoreForm: React.FC<ScoreFormProps> = ({ onSubmitScore }) => {
             <option value="6">6</option>
             <option value="7">No Luck Today :/ (7)</option>
           </Select>
-        </FormControl>
-            
-
-        <Button type="submit" colorScheme="whatsapp"  marginTop="8" size={"md"} >Submit</Button>
+        </FormControl>  
+          <Button type="submit" colorScheme="whatsapp"  marginTop="8" size={"lg"} >Submit</Button>
       </HStack>
     </Box>
   );

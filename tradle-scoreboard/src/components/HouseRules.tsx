@@ -10,8 +10,6 @@ import {
   Link as CLink,
   Text,
   ListItem,
-  List,
-  ListIcon,
   UnorderedList,
   Box,
   VStack,
@@ -63,10 +61,10 @@ const HouseRules = ({ isOpen, onClose }: HouseRulesProps) => {
                 </CLink>{" "}
                 det eneste tillatte hjelpemiddelet.{" "}
                 <Text as="i">
-                  Funksjoner til å måle avstand er desverre ikke lov (blir litt
+                  Funksjon til å måle avstand er desverre ikke lov (blir litt
                   for lett).
                 </Text>
-                <Text as="b"> Kunn øye mål :)</Text>
+                <Text as="b"> Kunn øyemål :)</Text>
               </Text>
               <Text>3: Good luck, have fun!</Text>
             </Box>

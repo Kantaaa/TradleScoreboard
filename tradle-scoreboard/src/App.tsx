@@ -88,8 +88,6 @@ const App: React.FC = () => {
     );
   };
 
-
-
   return (
     <ChakraProvider>
       <Router>
@@ -97,7 +95,6 @@ const App: React.FC = () => {
           onSubmitScore={handleSubmitScore}
           rankedScores={rankedScores}
         />
-        
       </Router>
     </ChakraProvider>
   );

@@ -37,7 +37,7 @@ const Navbar: React.FC<NavbarProps> = ({ onDateChange }: NavbarProps) => {
           bg="#333"
           _hover={{ bg: "#444" }}
           color={"white"}
-          onClick={onOpen} 
+          onClick={onOpen}
         >
           House Rules📝
         </Box>

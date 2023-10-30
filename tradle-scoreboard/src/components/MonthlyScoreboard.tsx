@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../utils/firebase';
 import { Score } from '../types';
-import { assignRanks } from '../utils/scoreUtils';
+import { assignRanks, calculatePoints } from '../utils/scoreUtils';
 import { Box, Table as ChakraTable, Thead, Tbody, Tr, Th, Td, Text, Center, Stack, Button, HStack } from "@chakra-ui/react";
 
 type AggregatedScore = {
   totalAttempts: number;
   totalGames: number;
   gamesPlayed?: number;
+  totalPoints?: number;
 };
 
 const MonthlyScoreboard: React.FC = () => {
@@ -60,41 +61,73 @@ const MonthlyScoreboard: React.FC = () => {
       aggregatedScores[normalizedName] = { totalAttempts: score.attempts, totalGames: 1, gamesPlayed: 1 };
     }
   });
-
   const aggregatedScoreArray: Score[] = Object.keys(aggregatedScores).map((name) => {
     const { totalAttempts, totalGames, gamesPlayed } = aggregatedScores[name];
     const averageAttempts = totalAttempts / totalGames;
+    const totalPoints = calculatePoints(Math.round(averageAttempts)) * (gamesPlayed ?? 0);
     return {
       name,
       attempts: averageAttempts,
       rank: 0,
       date: '',
-      gamesPlayed
+      gamesPlayed,
+      totalPoints
     };
   });
 
-  const sortedScores = assignRanks(aggregatedScoreArray);
+
+  // Sort by total points
+  const sortedScores = aggregatedScoreArray.sort((a, b) => (b.totalPoints ?? 0) - (a.totalPoints ?? 0));
+
+  // Assign ranks based on totalPoints
+  let currentRank = 1;
+  let lastPoints = -1;
+  let realRank = 1;
+  sortedScores.forEach((score, index) => {
+    if (score.totalPoints !== lastPoints) {
+      currentRank = realRank;
+    }
+    score.rank = currentRank;
+    lastPoints = score.totalPoints;
+    realRank++;
+  });
+
 
   return (
     <Stack bg="whiteAlpha.600" p={5} borderRadius="md" boxShadow="md">
-      <Center mb={8}>
+       <Center mb={8}>
         <Text fontSize="3xl" color="black" as={"b"}>Monthly Leaderboard 🏆</Text>
       </Center>
       <Center mb={2}>
         <HStack spacing={4}>
-          <Button width="auto" onClick={() => setMonthOffset(Math.max(0, monthOffset - 1))} disabled={monthOffset === 0}>Next Month</Button>
-          <Button width="auto" onClick={() => setMonthOffset(monthOffset + 1)}>Previous Month</Button>
+          <Button 
+            width="auto" 
+            onClick={() => setMonthOffset(monthOffset + 1)}
+          >
+            Prev Month
+          </Button>
+
+          <Button 
+            width="auto" 
+            onClick={() => setMonthOffset(Math.max(0, monthOffset - 1))} 
+            disabled={monthOffset === 0}
+          >
+            Next Month
+          </Button>
         </HStack>
       </Center>
-      <Center>
-      <Text fontSize="xl" as={"b"} color="black"> {currentMonth.toUpperCase()} {currentYear}</Text>
-
-      </Center>
+        <Center>
+        <Text fontSize="xl" as={"b"} color="black">
+          {currentMonth.toUpperCase()} {currentYear}
+        </Text>
+          </Center>  
       <ChakraTable variant="simple" size="lg" width="80%" m="auto" bg="#333" borderRadius="md" boxShadow="2xl" color="white">
+        
         <Thead>
           <Tr>
             <Th color="white">Rank</Th>
             <Th color="white">Name</Th>
+            <Th color="white">Total Points</Th> 
             <Th color="white">Attempts</Th>
             <Th color="white">Games Played</Th>
           </Tr>
@@ -104,6 +137,7 @@ const MonthlyScoreboard: React.FC = () => {
             <Tr key={index}>
               <Td>{score.rank}</Td>
               <Td>{score.name}</Td>
+              <Td>{score.totalPoints}</Td>
               <Td>{score.attempts}</Td>
               <Td>{score.gamesPlayed}</Td>
             </Tr>

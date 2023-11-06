@@ -8,6 +8,10 @@ export type Score = {
   timestamp?: number;
   gamesPlayed?: number; 
   point?: number; 
+
+
+  
+
   
 
 };

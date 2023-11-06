@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../utils/firebase';
 import { Score } from '../types';
-import { assignRanks, calculatePoints } from '../utils/scoreUtils';
-import { Box, Table as ChakraTable, Thead, Tbody, Tr, Th, Td, Text, Center, Stack, Button, HStack } from "@chakra-ui/react";
+import { calculatePoints } from '../utils/scoreUtils';
+import { Table as ChakraTable, Thead, Tbody, Tr, Th, Td, Text, Center, Stack, Button, HStack } from "@chakra-ui/react";
 
 type AggregatedScore = {
   totalAttempts: number;
@@ -46,6 +46,8 @@ const MonthlyScoreboard: React.FC = () => {
         });
       }
       setMonthlyScores(monthlyScores);
+      console.log("Fetched monthly scores:", monthlyScores);
+
     };
     fetchScores();
   }, [monthOffset]);
@@ -61,10 +63,14 @@ const MonthlyScoreboard: React.FC = () => {
       aggregatedScores[normalizedName] = { totalAttempts: score.attempts, totalGames: 1, gamesPlayed: 1 };
     }
   });
+
+  console.log("Aggregated scores:", aggregatedScores);
+
   const aggregatedScoreArray: Score[] = Object.keys(aggregatedScores).map((name) => {
     const { totalAttempts, totalGames, gamesPlayed } = aggregatedScores[name];
     const averageAttempts = totalAttempts / totalGames;
     const totalPoints = calculatePoints(Math.round(averageAttempts)) * (gamesPlayed ?? 0);
+
     return {
       name,
       attempts: averageAttempts,
@@ -73,7 +79,9 @@ const MonthlyScoreboard: React.FC = () => {
       gamesPlayed,
       totalPoints
     };
+
   });
+  console.log("Aggregated score array before sorting:", aggregatedScoreArray);
 
 
   // Sort by total points
@@ -91,6 +99,7 @@ const MonthlyScoreboard: React.FC = () => {
     lastPoints = score.totalPoints;
     realRank++;
   });
+  console.log("Sorted and ranked scores:", sortedScores);
 
 
   return (
@@ -128,7 +137,7 @@ const MonthlyScoreboard: React.FC = () => {
             <Th color="white">Rank</Th>
             <Th color="white">Name</Th>
             <Th color="white">Total Points</Th> 
-            <Th color="white">Attempts</Th>
+            <Th color="white">Avg. Points per game</Th>
             <Th color="white">Games Played</Th>
           </Tr>
         </Thead>
@@ -138,7 +147,7 @@ const MonthlyScoreboard: React.FC = () => {
               <Td>{score.rank}</Td>
               <Td>{score.name}</Td>
               <Td>{score.totalPoints}</Td>
-              <Td>{score.attempts}</Td>
+              <Td>{score.totalPoints && score.gamesPlayed ? score.totalPoints/score.gamesPlayed : 0}</Td>
               <Td>{score.gamesPlayed}</Td>
             </Tr>
           ))}

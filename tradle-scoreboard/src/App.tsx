@@ -83,6 +83,8 @@ const App: React.FC = () => {
           <Route path="/" element={<Scoreboard scores={rankedScores} />} />
           <Route path="/weekly" element={<WeeklyScoreboard />} />
           <Route path="/monthly" element={<MonthlyScoreboard />} />
+          
+      
         </Routes>
       </Stack>
     );
@@ -95,6 +97,7 @@ const App: React.FC = () => {
           onSubmitScore={handleSubmitScore}
           rankedScores={rankedScores}
         />
+        
       </Router>
     </ChakraProvider>
   );

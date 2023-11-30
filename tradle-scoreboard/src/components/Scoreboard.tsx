@@ -25,6 +25,8 @@ interface ScoreboardProps {
 
 const PAGE_SIZE = 10;
 
+
+
 const fetchScoresForDate = async (date: string): Promise<Score[]> => {
   const scoresCollection = collection(db, "scores");
   const dateQuery = query(scoresCollection, where("date", "==", date));
@@ -58,10 +60,15 @@ const Scoreboard: React.FC<ScoreboardProps> = ({ scores }) => {
   }, [selectedDate]);
 
   // Paginate the filtered scores
-  const paginatedScores = filteredScores.slice(
+  const paginatedScores: Score[] = filteredScores.slice(
     (currentPage - 1) * PAGE_SIZE,
     currentPage * PAGE_SIZE
   );
+
+
+
+
+
 
   return (
     <Stack bg="whiteAlpha.600" p={5} borderRadius="md" boxShadow="md">
@@ -139,6 +146,8 @@ const Scoreboard: React.FC<ScoreboardProps> = ({ scores }) => {
         </Center>
       </Box>
     </Stack>
+
+
   );
 };
 

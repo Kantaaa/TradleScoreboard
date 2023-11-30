@@ -18,10 +18,8 @@ import {
 } from "@chakra-ui/react";
 
 type AggregatedScore = {
-  totalAttempts: number;
   totalGames: number;
-  gamesPlayed?: number;
-  totalPoints?: number;
+  totalPoints: number;
 };
 
 const MonthlyScoreboard: React.FC = () => {
@@ -46,13 +44,7 @@ const MonthlyScoreboard: React.FC = () => {
         const startOfMonth = new Date(Date.UTC(year, month, 1));
         const endOfMonth = new Date(Date.UTC(year, month + 1, 0));
 
-        // Log the start and end of the month to verify the correct range
-        console.log(
-          `Fetching scores from ${startOfMonth.toISOString()} to ${endOfMonth.toISOString()}`
-        );
-
         for (let day = 1; day <= endOfMonth.getUTCDate(); day++) {
-          // Use UTC date for comparison
           const date = new Date(Date.UTC(year, month, day));
           const dateString = date.toISOString().split("T")[0];
           const dayQuery = query(scoresRef, where("date", "==", dateString));
@@ -60,17 +52,14 @@ const MonthlyScoreboard: React.FC = () => {
 
           snapshot.docs.forEach((doc) => {
             const scoreData = doc.data() as Score;
-            const normalizedName = scoreData.name.toUpperCase(); // Normalize the name to upper case
             monthlyScores.push({
               id: doc.id,
               ...scoreData,
-              name: normalizedName, // Use the normalized name
             });
           });
         }
 
         setMonthlyScores(monthlyScores);
-        console.log("Fetched monthly scores:", monthlyScores);
       } catch (error) {
         console.error("Error fetching scores:", error);
       }
@@ -82,42 +71,28 @@ const MonthlyScoreboard: React.FC = () => {
   const aggregatedScores: { [name: string]: AggregatedScore } = {};
   monthlyScores.forEach((score) => {
     const normalizedName = score.name.toUpperCase();
-    if (aggregatedScores[normalizedName]) {
-      // If so, update the existing entry
-      aggregatedScores[normalizedName].totalAttempts += score.attempts;
-      aggregatedScores[normalizedName].totalGames += 1;
-      aggregatedScores[normalizedName].gamesPlayed =
-        aggregatedScores[normalizedName].totalGames;
-    } else {
-      // If not, create a new entry for this name
-      aggregatedScores[normalizedName] = {
-        totalAttempts: score.attempts,
-        totalGames: 1,
-        gamesPlayed: 1,
-      };
+    if (!aggregatedScores[normalizedName]) {
+      aggregatedScores[normalizedName] = { totalPoints: 0, totalGames: 0 };
     }
+    const gamePoints = calculatePoints(score.attempts);
+    aggregatedScores[normalizedName].totalPoints += gamePoints;
+    aggregatedScores[normalizedName].totalGames += 1;
   });
-
-  console.log("Aggregated scores:", aggregatedScores);
 
   const aggregatedScoreArray: Score[] = Object.keys(aggregatedScores).map(
     (name) => {
-      const { totalAttempts, totalGames, gamesPlayed } = aggregatedScores[name];
-      const averageAttempts = totalAttempts / totalGames;
-      const totalPoints =
-        calculatePoints(Math.round(averageAttempts)) * (gamesPlayed ?? 0);
-
+      const { totalPoints, totalGames } = aggregatedScores[name];
       return {
         name,
-        attempts: averageAttempts,
         rank: 0,
         date: "",
-        gamesPlayed,
+        gamesPlayed: totalGames,
         totalPoints,
-      };
+        attempts: 0,
+      } as Score;
+      
     }
   );
-  console.log("Aggregated score array before sorting:", aggregatedScoreArray);
 
   // Sort by total points
   const sortedScores = aggregatedScoreArray.sort(
@@ -136,7 +111,6 @@ const MonthlyScoreboard: React.FC = () => {
     lastPoints = score.totalPoints;
     realRank++;
   });
-  console.log("Sorted and ranked scores:", sortedScores);
 
   return (
     <Stack bg="whiteAlpha.600" p={5} borderRadius="md" boxShadow="md">

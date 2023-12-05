@@ -18,10 +18,10 @@ import {
 } from "@chakra-ui/react";
 
 type AggregatedScore = {
-  totalAttempts: number;
+  totalAttempts?: number; 
   totalGames: number;
   gamesPlayed?: number;
-  totalPoints?: number;
+  totalPoints: number;
 };
 
 const MonthlyScoreboard: React.FC = () => {
@@ -80,39 +80,33 @@ const MonthlyScoreboard: React.FC = () => {
   }, [monthOffset]);
 
   const aggregatedScores: { [name: string]: AggregatedScore } = {};
-  monthlyScores.forEach((score) => {
-    const normalizedName = score.name.toUpperCase();
-    if (aggregatedScores[normalizedName]) {
-      // If so, update the existing entry
-      aggregatedScores[normalizedName].totalAttempts += score.attempts;
-      aggregatedScores[normalizedName].totalGames += 1;
-      aggregatedScores[normalizedName].gamesPlayed =
-        aggregatedScores[normalizedName].totalGames;
-    } else {
-      // If not, create a new entry for this name
-      aggregatedScores[normalizedName] = {
-        totalAttempts: score.attempts,
-        totalGames: 1,
-        gamesPlayed: 1,
-      };
-    }
-  });
+monthlyScores.forEach((score) => {
+  const normalizedName = score.name.toUpperCase();
+  if (!aggregatedScores[normalizedName]) {
+    // If not already present, create a new entry for this player
+    aggregatedScores[normalizedName] = {
+      totalPoints: calculatePoints(score.attempts), // Initialize with points for the first game
+      totalGames: 1,
+    };
+  } else {
+    // If already present, update the existing entry
+    aggregatedScores[normalizedName].totalPoints += calculatePoints(score.attempts); // Add points for this game
+    aggregatedScores[normalizedName].totalGames++; // Increment the total number of games
+  }
+});
+console.log("Aggregated scores:", aggregatedScores);
 
-  console.log("Aggregated scores:", aggregatedScores);
 
   const aggregatedScoreArray: Score[] = Object.keys(aggregatedScores).map(
     (name) => {
-      const { totalAttempts, totalGames, gamesPlayed } = aggregatedScores[name];
-      const averageAttempts = totalAttempts / totalGames;
-      const totalPoints =
-        calculatePoints(Math.round(averageAttempts)) * (gamesPlayed ?? 0);
-
+      const { totalPoints, totalGames } = aggregatedScores[name];
+  
       return {
         name,
-        attempts: averageAttempts,
+        attempts: 0, // This can be omitted or set to 0, as it's not used in the final display
         rank: 0,
         date: "",
-        gamesPlayed,
+        gamesPlayed: totalGames,
         totalPoints,
       };
     }

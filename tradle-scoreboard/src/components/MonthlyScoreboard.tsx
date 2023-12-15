@@ -18,10 +18,7 @@ import {
 } from "@chakra-ui/react";
 
 type AggregatedScore = {
-  totalAttempts?: number; 
   totalGames: number;
-  gamesPlayed?: number;
-
   totalPoints: number;
 };
 
@@ -72,30 +69,21 @@ const MonthlyScoreboard: React.FC = () => {
   }, [monthOffset]);
 
   const aggregatedScores: { [name: string]: AggregatedScore } = {};
-monthlyScores.forEach((score) => {
-  const normalizedName = score.name.toUpperCase();
-  if (!aggregatedScores[normalizedName]) {
-    // If not already present, create a new entry for this player
-    aggregatedScores[normalizedName] = {
-      totalPoints: calculatePoints(score.attempts), // Initialize with points for the first game
-      totalGames: 1,
-    };
-  } else {
-    // If already present, update the existing entry
-    aggregatedScores[normalizedName].totalPoints += calculatePoints(score.attempts); // Add points for this game
-    aggregatedScores[normalizedName].totalGames++; // Increment the total number of games
-  }
-});
-console.log("Aggregated scores:", aggregatedScores);
-
+  monthlyScores.forEach((score) => {
+    const normalizedName = score.name.toUpperCase();
+    if (!aggregatedScores[normalizedName]) {
+      aggregatedScores[normalizedName] = { totalPoints: 0, totalGames: 0 };
+    }
+    const gamePoints = calculatePoints(score.attempts);
+    aggregatedScores[normalizedName].totalPoints += gamePoints;
+    aggregatedScores[normalizedName].totalGames += 1;
+  });
 
   const aggregatedScoreArray: Score[] = Object.keys(aggregatedScores).map(
     (name) => {
       const { totalPoints, totalGames } = aggregatedScores[name];
-  
       return {
         name,
-        attempts: 0, // This can be omitted or set to 0, as it's not used in the final display
         rank: 0,
         date: "",
         gamesPlayed: totalGames,

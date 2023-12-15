@@ -94,7 +94,6 @@ console.log("Aggregated scores:", aggregatedScores);
   
       return {
         name,
-        attempts: 0, // This can be omitted or set to 0, as it's not used in the final display
         rank: 0,
         date: "",
         gamesPlayed: totalGames,

@@ -21,6 +21,7 @@ type AggregatedScore = {
   totalAttempts?: number; 
   totalGames: number;
   gamesPlayed?: number;
+
   totalPoints: number;
 };
 
@@ -46,13 +47,7 @@ const MonthlyScoreboard: React.FC = () => {
         const startOfMonth = new Date(Date.UTC(year, month, 1));
         const endOfMonth = new Date(Date.UTC(year, month + 1, 0));
 
-        // Log the start and end of the month to verify the correct range
-        console.log(
-          `Fetching scores from ${startOfMonth.toISOString()} to ${endOfMonth.toISOString()}`
-        );
-
         for (let day = 1; day <= endOfMonth.getUTCDate(); day++) {
-          // Use UTC date for comparison
           const date = new Date(Date.UTC(year, month, day));
           const dateString = date.toISOString().split("T")[0];
           const dayQuery = query(scoresRef, where("date", "==", dateString));
@@ -60,17 +55,14 @@ const MonthlyScoreboard: React.FC = () => {
 
           snapshot.docs.forEach((doc) => {
             const scoreData = doc.data() as Score;
-            const normalizedName = scoreData.name.toUpperCase(); // Normalize the name to upper case
             monthlyScores.push({
               id: doc.id,
               ...scoreData,
-              name: normalizedName, // Use the normalized name
             });
           });
         }
 
         setMonthlyScores(monthlyScores);
-        console.log("Fetched monthly scores:", monthlyScores);
       } catch (error) {
         console.error("Error fetching scores:", error);
       }
@@ -108,10 +100,11 @@ console.log("Aggregated scores:", aggregatedScores);
         date: "",
         gamesPlayed: totalGames,
         totalPoints,
-      };
+        attempts: 0,
+      } as Score;
+      
     }
   );
-  console.log("Aggregated score array before sorting:", aggregatedScoreArray);
 
   // Sort by total points
   const sortedScores = aggregatedScoreArray.sort(
@@ -130,7 +123,6 @@ console.log("Aggregated scores:", aggregatedScores);
     lastPoints = score.totalPoints;
     realRank++;
   });
-  console.log("Sorted and ranked scores:", sortedScores);
 
   return (
     <Stack bg="whiteAlpha.600" p={5} borderRadius="md" boxShadow="md">

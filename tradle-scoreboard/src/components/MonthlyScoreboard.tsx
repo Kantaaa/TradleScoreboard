@@ -21,7 +21,6 @@ type AggregatedScore = {
   totalAttempts?: number; 
   totalGames: number;
   gamesPlayed?: number;
-
   totalPoints: number;
 };
 
@@ -100,7 +99,6 @@ console.log("Aggregated scores:", aggregatedScores);
         date: "",
         gamesPlayed: totalGames,
         totalPoints,
-        attempts: 0,
       } as Score;
       
     }

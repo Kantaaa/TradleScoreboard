@@ -160,6 +160,7 @@ const MonthlyScoreboard: React.FC = () => {
         </Thead>
         <Tbody>
           {sortedScores.map((score, index) => (
+             console.log(`ID: ${score.id}, Score: ${score.gamesPlayed}`),
             <Tr key={index}>
               <Td>{score.rank}</Td>
               <Td>{score.name}</Td>

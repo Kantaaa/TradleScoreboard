@@ -27,12 +27,16 @@ const WeeklyScoreboard: React.FC = () => {
     const scoresRef = collection(db, 'scores');
     const weeklyQuery = query(scoresRef, where('date', '>=', startOfWeek.toISOString().split('T')[0]), where('date', '<=', endOfWeek.toISOString().split('T')[0]));
 
+ 
+
     const unsubscribe = onSnapshot(weeklyQuery, (snapshot) => {
       const newScores = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data() as Score,
       }));
       setWeeklyScores(newScores);
+
+     
     });
 
     return () => {
@@ -91,7 +95,8 @@ const WeeklyScoreboard: React.FC = () => {
     return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
   };
 
- 
+      //log the fetched scores
+      console.log(weeklyScores);
 
   //Get current week number
   const currentDate = new Date();

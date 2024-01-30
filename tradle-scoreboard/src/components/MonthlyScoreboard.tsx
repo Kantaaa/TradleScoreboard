@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs, documentId, doc } from "firebase/firestore";
 import { db } from "../utils/firebase";
 import { Score } from "../types";
 import { calculatePoints } from "../utils/scoreUtils";
@@ -58,11 +58,14 @@ const MonthlyScoreboard: React.FC = () => {
             });
           });
         }
+       
 
         setMonthlyScores(monthlyScores);
       } catch (error) {
         console.error("Error fetching scores:", error);
       }
+       //log the fetched scores
+       console.log(monthlyScores);
     };
 
     fetchScores();
@@ -83,6 +86,7 @@ const MonthlyScoreboard: React.FC = () => {
     (name) => {
       const { totalPoints, totalGames } = aggregatedScores[name];
       return {
+
         name,
         rank: 0,
         date: "",
@@ -110,6 +114,7 @@ const MonthlyScoreboard: React.FC = () => {
     score.rank = currentRank;
     lastPoints = score.totalPoints;
     realRank++;
+
   });
 
   return (
@@ -160,7 +165,6 @@ const MonthlyScoreboard: React.FC = () => {
         </Thead>
         <Tbody>
           {sortedScores.map((score, index) => (
-             console.log(`ID: ${score.id}, Score: ${score.gamesPlayed}`),
             <Tr key={index}>
               <Td>{score.rank}</Td>
               <Td>{score.name}</Td>

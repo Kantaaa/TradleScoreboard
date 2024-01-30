@@ -10,8 +10,4 @@ export type Score = {
   point?: number; 
 
 
-  
-
-  
-
 };

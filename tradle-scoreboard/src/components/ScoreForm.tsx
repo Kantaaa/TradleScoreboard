@@ -11,6 +11,7 @@ import {
   Select,
 } from "@chakra-ui/react";
 
+
 interface ScoreFormProps {
   onSubmitScore: (score: Score) => void;
 }
@@ -22,10 +23,21 @@ const ScoreForm: React.FC<ScoreFormProps> = ({ onSubmitScore }) => {
 
   const toast = useToast();
 
+  // Immediately trim spaces when the name is changed
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Update the name state on each change without trimming
+    setName(e.target.value);
+  };
+  const handleNameBlur = () => {
+    // Trim leading and trailing spaces when the input loses focus
+    setName(name.trim());
+  };
+
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (name.trim() === "" || score.trim() === "") {
+    // Use trimmed name for validation
+    if (name === "" || score.trim() === "") {
       toast({
         title: "Error.",
         description: "Both fields must be filled out.",
@@ -38,7 +50,7 @@ const ScoreForm: React.FC<ScoreFormProps> = ({ onSubmitScore }) => {
 
     let attempts: number | null = Number(score);
 
-    if (isNaN(attempts) || attempts === 0) {
+    if (isNaN(attempts) || attempts <= 0) {
       toast({
         title: "Error.",
         description:
@@ -88,13 +100,13 @@ const ScoreForm: React.FC<ScoreFormProps> = ({ onSubmitScore }) => {
             id="player-name"
             type="text"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={handleNameChange}
+            onBlur={handleNameBlur} 
             placeholder="Player Name"
-            list="previous-names" // Add this line
+            list="previous-names"
           />
           <datalist id="previous-names">
-            {" "}
-            {/* Add this block */}
+         
             {previousNames.map((name, index) => (
               <option key={index} value={name} />
             ))}
